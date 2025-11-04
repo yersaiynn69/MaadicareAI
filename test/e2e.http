@@ -1,0 +1,305 @@
+###
+# AI Medical Adapter - End-to-End Test Cases
+# Use with REST Client (VSCode) or Thunder Client
+###
+
+@baseUrl = http://localhost:3001
+@sessionId = test-session-{{$timestamp}}
+
+### Health Check
+GET {{baseUrl}}/health
+
+###############################################
+# TC-01: ОРВИ (Терапевт) - Satisfied
+###############################################
+
+### 1. Initialize session (RU)
+POST {{baseUrl}}/ai/message
+Content-Type: application/json
+
+{
+  "sessionId": "{{sessionId}}-orvi",
+  "type": "init",
+  "fio": "Иванов Иван Иванович",
+  "lang": "ru"
+}
+
+### 2. User describes symptoms
+POST {{baseUrl}}/ai/message
+Content-Type: application/json
+
+{
+  "sessionId": "{{sessionId}}-orvi",
+  "type": "message",
+  "message": "У меня температура 38.1, болит горло уже 3 дня, общая слабость и насморк"
+}
+
+### 3. Follow-up if AI asks clarifying questions
+POST {{baseUrl}}/ai/message
+Content-Type: application/json
+
+{
+  "sessionId": "{{sessionId}}-orvi",
+  "type": "message",
+  "message": "Началось 3 дня назад, боль при глотании около 6 из 10, температура поднимается вечером до 38, лекарства не принимал, аллергий нет"
+}
+
+### 4. Finalize - User satisfied
+POST {{baseUrl}}/ai/finalize
+Content-Type: application/json
+
+{
+  "sessionId": "{{sessionId}}-orvi",
+  "satisfaction": "yes"
+}
+
+# Expected: {"intent":"make_referral","fio":"Иванов Иван Иванович","preliminary_assessment":"ОРВИ без признаков осложнения (предварительно)","doctor_type":"терапевт"}
+
+###############################################
+# TC-02: Сыпь с фото (Дерматолог) - Satisfied
+###############################################
+
+### 1. Initialize
+POST {{baseUrl}}/ai/message
+Content-Type: application/json
+
+{
+  "sessionId": "{{sessionId}}-rash",
+  "type": "init",
+  "fio": "Петрова Мария Сергеевна",
+  "lang": "ru"
+}
+
+### 2. Describe rash with image
+POST {{baseUrl}}/ai/message
+Content-Type: application/json
+
+{
+  "sessionId": "{{sessionId}}-rash",
+  "type": "message",
+  "message": "На руке появилась красная сыпь, зудит",
+  "imageUrl": "https://example.com/rash-image.jpg"
+}
+
+### 3. Follow-up
+POST {{baseUrl}}/ai/message
+Content-Type: application/json
+
+{
+  "sessionId": "{{sessionId}}-rash",
+  "type": "message",
+  "message": "Появилась 2 дня назад, зуд около 7 из 10, температуры нет, новые продукты не ела, на лекарства аллергии нет"
+}
+
+### 4. Finalize - Satisfied
+POST {{baseUrl}}/ai/finalize
+Content-Type: application/json
+
+{
+  "sessionId": "{{sessionId}}-rash",
+  "satisfaction": "yes"
+}
+
+# Expected: doctor_type: "дерматолог"
+
+###############################################
+# TC-03: Боль в груди (Кардиолог/Терапевт)
+###############################################
+
+### 1. Initialize
+POST {{baseUrl}}/ai/message
+Content-Type: application/json
+
+{
+  "sessionId": "{{sessionId}}-chest",
+  "type": "init",
+  "fio": "Сидоров Петр Алексеевич",
+  "lang": "ru"
+}
+
+### 2. Chest pain (RED FLAG)
+POST {{baseUrl}}/ai/message
+Content-Type: application/json
+
+{
+  "sessionId": "{{sessionId}}-chest",
+  "type": "message",
+  "message": "Чувствую давление в груди и небольшую одышку, беспокоит уже час"
+}
+
+### 3. Follow-up
+POST {{baseUrl}}/ai/message
+Content-Type: application/json
+
+{
+  "sessionId": "{{sessionId}}-chest",
+  "type": "message",
+  "message": "Давление около 5-6 из 10, одышка даже в покое, раньше такого не было, мне 55 лет"
+}
+
+### 4. Finalize - Satisfied
+POST {{baseUrl}}/ai/finalize
+Content-Type: application/json
+
+{
+  "sessionId": "{{sessionId}}-chest",
+  "satisfaction": "yes"
+}
+
+# Expected: doctor_type: "кардиолог" or "терапевт", with urgent care recommendation in chat
+
+###############################################
+# TC-04: Недовольство - Handoff to Operator
+###############################################
+
+### 1. Initialize
+POST {{baseUrl}}/ai/message
+Content-Type: application/json
+
+{
+  "sessionId": "{{sessionId}}-dissatisfied",
+  "type": "init",
+  "fio": "Кузнецова Анна Петровна",
+  "lang": "ru"
+}
+
+### 2. Simple query
+POST {{baseUrl}}/ai/message
+Content-Type: application/json
+
+{
+  "sessionId": "{{sessionId}}-dissatisfied",
+  "type": "message",
+  "message": "Голова болит"
+}
+
+### 3. Finalize - NOT satisfied
+POST {{baseUrl}}/ai/finalize
+Content-Type: application/json
+
+{
+  "sessionId": "{{sessionId}}-dissatisfied",
+  "satisfaction": "no"
+}
+
+# Expected: {"intent":"handoff_to_operator","reason":"Пользователь недоволен ответом"}
+
+###############################################
+# TC-05: Non-medical question
+###############################################
+
+### 1. Initialize
+POST {{baseUrl}}/ai/message
+Content-Type: application/json
+
+{
+  "sessionId": "{{sessionId}}-nonmed",
+  "type": "init",
+  "fio": "Тестов Тест Тестович",
+  "lang": "ru"
+}
+
+### 2. Non-medical question
+POST {{baseUrl}}/ai/message
+Content-Type: application/json
+
+{
+  "sessionId": "{{sessionId}}-nonmed",
+  "type": "message",
+  "message": "Как приготовить борщ?"
+}
+
+# Expected: Polite refusal, redirect to medical topics
+
+###############################################
+# TC-06: Kazakh Language
+###############################################
+
+### 1. Initialize (KK)
+POST {{baseUrl}}/ai/message
+Content-Type: application/json
+
+{
+  "sessionId": "{{sessionId}}-kk",
+  "type": "init",
+  "fio": "Нұрланов Нұрлан Нұрланұлы",
+  "lang": "kk"
+}
+
+### 2. Message in Kazakh
+POST {{baseUrl}}/ai/message
+Content-Type: application/json
+
+{
+  "sessionId": "{{sessionId}}-kk",
+  "type": "message",
+  "message": "Менің басым ауырады және температурам жоғары"
+}
+
+### 3. Follow-up
+POST {{baseUrl}}/ai/message
+Content-Type: application/json
+
+{
+  "sessionId": "{{sessionId}}-kk",
+  "type": "message",
+  "message": "2 күн болды, температура 37.8, бас ауыруы орташа"
+}
+
+### 4. Finalize - Satisfied
+POST {{baseUrl}}/ai/finalize
+Content-Type: application/json
+
+{
+  "sessionId": "{{sessionId}}-kk",
+  "satisfaction": "yes"
+}
+
+# Expected: JSON with proper doctor_type (language independent)
+
+###############################################
+# TC-07: Pediatric case
+###############################################
+
+### 1. Initialize
+POST {{baseUrl}}/ai/message
+Content-Type: application/json
+
+{
+  "sessionId": "{{sessionId}}-child",
+  "type": "init",
+  "fio": "Смирнова Екатерина (мать)",
+  "lang": "ru"
+}
+
+### 2. Child symptoms
+POST {{baseUrl}}/ai/message
+Content-Type: application/json
+
+{
+  "sessionId": "{{sessionId}}-child",
+  "type": "message",
+  "message": "У моего ребенка температура 38.5 и кашель"
+}
+
+### 3. Follow-up
+POST {{baseUrl}}/ai/message
+Content-Type: application/json
+
+{
+  "sessionId": "{{sessionId}}-child",
+  "type": "message",
+  "message": "Ребенку 5 лет, температура началась вчера, кашель сухой, аппетит снижен"
+}
+
+### 4. Finalize - Satisfied
+POST {{baseUrl}}/ai/finalize
+Content-Type: application/json
+
+{
+  "sessionId": "{{sessionId}}-child",
+  "satisfaction": "yes"
+}
+
+# Expected: doctor_type: "педиатр"
+

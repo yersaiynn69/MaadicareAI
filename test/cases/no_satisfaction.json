@@ -1,0 +1,38 @@
+{
+  "name": "TC-04: Недовольство (Handoff)",
+  "description": "User not satisfied - should handoff to operator",
+  "steps": [
+    {
+      "step": 1,
+      "endpoint": "/ai/message",
+      "payload": {
+        "sessionId": "test-dissatisfied-001",
+        "type": "init",
+        "fio": "Кузнецова Анна Петровна",
+        "lang": "ru"
+      }
+    },
+    {
+      "step": 2,
+      "endpoint": "/ai/message",
+      "payload": {
+        "sessionId": "test-dissatisfied-001",
+        "type": "message",
+        "message": "Голова болит"
+      }
+    },
+    {
+      "step": 3,
+      "endpoint": "/ai/finalize",
+      "payload": {
+        "sessionId": "test-dissatisfied-001",
+        "satisfaction": "no"
+      },
+      "expected": {
+        "intent": "handoff_to_operator",
+        "reason": "Пользователь недоволен ответом"
+      }
+    }
+  ]
+}
+

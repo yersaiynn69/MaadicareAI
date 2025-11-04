@@ -1,0 +1,41 @@
+{
+  "name": "TC-03: Боль в груди (RED FLAG)",
+  "description": "User with chest pain - should trigger red flag warning",
+  "steps": [
+    {
+      "step": 1,
+      "endpoint": "/ai/message",
+      "payload": {
+        "sessionId": "test-chest-001",
+        "type": "init",
+        "fio": "Сидоров Петр Алексеевич",
+        "lang": "ru"
+      }
+    },
+    {
+      "step": 2,
+      "endpoint": "/ai/message",
+      "payload": {
+        "sessionId": "test-chest-001",
+        "type": "message",
+        "message": "Чувствую давление в груди и небольшую одышку, беспокоит уже час"
+      },
+      "expected": {
+        "reply": "Should contain urgent care recommendation"
+      }
+    },
+    {
+      "step": 3,
+      "endpoint": "/ai/finalize",
+      "payload": {
+        "sessionId": "test-chest-001",
+        "satisfaction": "yes"
+      },
+      "expected": {
+        "intent": "make_referral",
+        "doctor_type": "кардиолог or терапевт"
+      }
+    }
+  ]
+}
+

@@ -1,0 +1,58 @@
+{
+  "name": "TC-01: ОРВИ (Терапевт)",
+  "description": "User with common cold symptoms, satisfied with consultation",
+  "steps": [
+    {
+      "step": 1,
+      "endpoint": "/ai/message",
+      "payload": {
+        "sessionId": "test-orvi-001",
+        "type": "init",
+        "fio": "Иванов Иван Иванович",
+        "lang": "ru"
+      },
+      "expected": {
+        "reply": "Contains greeting with FIO"
+      }
+    },
+    {
+      "step": 2,
+      "endpoint": "/ai/message",
+      "payload": {
+        "sessionId": "test-orvi-001",
+        "type": "message",
+        "message": "У меня температура 38.1, болит горло уже 3 дня, общая слабость и насморк"
+      },
+      "expected": {
+        "reply": "Contains clarifying questions"
+      }
+    },
+    {
+      "step": 3,
+      "endpoint": "/ai/message",
+      "payload": {
+        "sessionId": "test-orvi-001",
+        "type": "message",
+        "message": "Началось 3 дня назад, боль при глотании около 6 из 10, температура поднимается вечером до 38, лекарства не принимал, аллергий нет"
+      },
+      "expected": {
+        "reply": "Contains recommendations and disclaimer"
+      }
+    },
+    {
+      "step": 4,
+      "endpoint": "/ai/finalize",
+      "payload": {
+        "sessionId": "test-orvi-001",
+        "satisfaction": "yes"
+      },
+      "expected": {
+        "intent": "make_referral",
+        "fio": "Иванов Иван Иванович",
+        "doctor_type": "терапевт",
+        "preliminary_assessment": "Contains ОРВИ or similar assessment"
+      }
+    }
+  ]
+}
+

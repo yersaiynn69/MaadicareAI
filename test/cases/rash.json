@@ -1,0 +1,48 @@
+{
+  "name": "TC-02: Сыпь с фото (Дерматолог)",
+  "description": "User with skin rash and image, satisfied",
+  "steps": [
+    {
+      "step": 1,
+      "endpoint": "/ai/message",
+      "payload": {
+        "sessionId": "test-rash-001",
+        "type": "init",
+        "fio": "Петрова Мария Сергеевна",
+        "lang": "ru"
+      }
+    },
+    {
+      "step": 2,
+      "endpoint": "/ai/message",
+      "payload": {
+        "sessionId": "test-rash-001",
+        "type": "message",
+        "message": "На руке появилась красная сыпь, зудит",
+        "imageUrl": "https://example.com/rash.jpg"
+      }
+    },
+    {
+      "step": 3,
+      "endpoint": "/ai/message",
+      "payload": {
+        "sessionId": "test-rash-001",
+        "type": "message",
+        "message": "Появилась 2 дня назад, зуд около 7 из 10, температуры нет"
+      }
+    },
+    {
+      "step": 4,
+      "endpoint": "/ai/finalize",
+      "payload": {
+        "sessionId": "test-rash-001",
+        "satisfaction": "yes"
+      },
+      "expected": {
+        "intent": "make_referral",
+        "doctor_type": "дерматолог"
+      }
+    }
+  ]
+}
+
