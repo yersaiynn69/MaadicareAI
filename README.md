@@ -1,6 +1,6 @@
 # AI Medical Adapter
 
-Медицинский AI-адаптер для интеграции с OpenAI API.
+Медицинский AI-адаптер для интеграции с Google Gemini API.
 
 ## Установка
 
@@ -14,9 +14,9 @@ npm install
 cp .env.example .env
 ```
 
-3. Добавьте ваш OpenAI API ключ в `.env`:
+3. Добавьте ваш Gemini API ключ в `.env`:
 ```env
-OPENAI_API_KEY=sk-your-api-key-here
+GEMINI_API_KEY=AIzaSyCTUVcmdYeuD3PoJr_XO1sERE4qnY82fTk
 ```
 
 ## Использование
@@ -41,16 +41,16 @@ npm start
 
 ## Переменные окружения
 
-- `OPENAI_API_KEY` - API ключ OpenAI (обязательно)
-- `OPENAI_BASE_URL` - Базовый URL OpenAI API (по умолчанию: https://api.openai.com/v1)
-- `OPENAI_MODEL` - Модель для использования (по умолчанию: gpt-4o-mini)
+- `GEMINI_API_KEY` - API ключ Google Gemini (обязательно)
+- `GEMINI_BASE_URL` - Базовый URL Gemini API (по умолчанию: https://generativelanguage.googleapis.com/v1beta)
+- `GEMINI_MODEL` - Модель для использования (по умолчанию: gemini-1.5-flash)
 - `PORT` - Порт сервера (по умолчанию: 3001)
 
 ## Troubleshooting
 
-### Ошибка "OPENAI_API_KEY is not set"
+### Ошибка "GEMINI_API_KEY is not set"
 
 1. Убедитесь, что файл `.env` существует в корне проекта
-2. Проверьте, что в `.env` есть строка `OPENAI_API_KEY=your-key`
+2. Проверьте, что в `.env` есть строка `GEMINI_API_KEY=your-key`
 3. Убедитесь, что `dotenv` установлен: `npm install dotenv`
 4. Перезапустите сервер после изменения `.env`

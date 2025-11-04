@@ -48,13 +48,13 @@ app.listen(cfg.port, () => {
 ║   🏥 AI Medical Adapter - MVP                ║
 ║                                               ║
 ║   Server:  http://localhost:${cfg.port}          ║
-║   Model:   ${cfg.openai.model}                    ║
+║   Model:   ${cfg.gemini.model}                    ║
 ║   Status:  ✅ Ready                           ║
 ╚═══════════════════════════════════════════════╝
   `);
   
-  if (!cfg.openai.apiKey) {
-    console.warn("⚠️  WARNING: OPENAI_API_KEY is not set!");
+  if (!cfg.gemini.apiKey) {
+    console.warn("⚠️  WARNING: GEMINI_API_KEY is not set!");
   }
 });
 

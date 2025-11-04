@@ -2,10 +2,10 @@ import { Language } from "./types";
 
 export const cfg = {
   port: parseInt(process.env.PORT || "3001", 10),
-  openai: {
-    baseUrl: process.env.OPENAI_BASE_URL || "https://api.openai.com/v1",
-    apiKey: process.env.OPENAI_API_KEY || "",
-    model: process.env.OPENAI_MODEL || "gpt-4o-mini",
+  gemini: {
+    baseUrl: process.env.GEMINI_BASE_URL || "https://generativelanguage.googleapis.com/v1beta",
+    apiKey: process.env.GEMINI_API_KEY || "",
+    model: process.env.GEMINI_MODEL || "gemini-1.5-flash",
     temperature: 0.2,
   },
   timeouts: {
@@ -18,7 +18,7 @@ export const cfg = {
 };
 
 // Validate required config
-if (!cfg.openai.apiKey) {
-  console.warn("⚠️  OPENAI_API_KEY is not set. Please set it in .env file.");
+if (!cfg.gemini.apiKey) {
+  console.warn("⚠️  GEMINI_API_KEY is not set. Please set it in .env file.");
 }
 
