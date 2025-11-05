@@ -42,10 +42,11 @@ export interface HandoffResponse {
 }
 
 export interface ReferralResponse {
-  intent: "make_referral";
-  fio: string;
-  preliminary_assessment: string;
-  doctor_type: DoctorType;
+  intent: "make_referral" | "no_referral_needed";
+  fio?: string;
+  preliminary_assessment?: string;
+  doctor_type?: DoctorType;
+  reason?: string; // For "no_referral_needed" - explain why referral is not needed
 }
 
 export type DoctorType = 

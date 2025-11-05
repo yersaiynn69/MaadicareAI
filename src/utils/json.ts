@@ -6,9 +6,9 @@ const HandoffSchema = z.object({
 });
 
 const ReferralSchema = z.object({
-  intent: z.literal("make_referral"),
-  fio: z.string().min(1),
-  preliminary_assessment: z.string().min(1),
+  intent: z.enum(["make_referral", "no_referral_needed"]),
+  fio: z.string().optional(),
+  preliminary_assessment: z.string().optional(),
   doctor_type: z.enum([
     "терапевт",
     "ЛОР",
@@ -23,8 +23,20 @@ const ReferralSchema = z.object({
     "уролог",
     "гастроэнтеролог",
     "педиатр",
-  ]),
-});
+  ]).optional(),
+  reason: z.string().optional(), // For "no_referral_needed"
+}).refine(
+  (data) => {
+    if (data.intent === "make_referral") {
+      return data.fio && data.preliminary_assessment && data.doctor_type;
+    } else {
+      return data.reason; // no_referral_needed should have reason
+    }
+  },
+  {
+    message: "Invalid referral response: make_referral requires fio, preliminary_assessment, doctor_type; no_referral_needed requires reason",
+  }
+);
 
 export type HandoffResponse = z.infer<typeof HandoffSchema>;
 export type ReferralResponse = z.infer<typeof ReferralSchema>;
