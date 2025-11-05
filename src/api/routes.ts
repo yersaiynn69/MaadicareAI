@@ -81,8 +81,27 @@ api.post("/ai/message", async (req: Request, res: Response) => {
         content: contentParts.length === 1 ? contentParts[0].text : contentParts,
       });
 
-      // Get LLM response
-      const reply = await chat(session.messages);
+      // Get LLM response with better error handling
+      let reply: string;
+      try {
+        reply = await chat(session.messages);
+      } catch (error: any) {
+        // Remove the last user message if AI failed (to avoid state inconsistency)
+        if (session.messages.length > 0 && session.messages[session.messages.length - 1].role === "user") {
+          session.messages.pop();
+        }
+        
+        const errorMessage = 
+          session.lang === "kk"
+            ? "Кешіріңіз, AI сервисіне қосылу мүмкін болмады. Қайталап көріңіз немесе дәрігерге хабарласыңыз."
+            : "Извините, не удалось связаться с AI сервисом. Попробуйте еще раз или обратитесь к врачу.";
+        
+        console.error("❌ Error in /ai/message:", error);
+        return res.status(500).json({ 
+          error: errorMessage,
+          details: error.message 
+        });
+      }
 
       // Add assistant response to history
       session.messages.push({ role: "assistant", content: reply });
@@ -101,7 +120,10 @@ api.post("/ai/message", async (req: Request, res: Response) => {
     return res.status(400).json({ error: "type must be 'init' or 'message'" });
   } catch (error: any) {
     console.error("❌ Error in /ai/message:", error);
-    return res.status(500).json({ error: error.message || "Internal server error" });
+    return res.status(500).json({ 
+      error: "Извините, сервис временно недоступен. Попробуйте позже.",
+      details: error.message 
+    });
   }
 });
 
