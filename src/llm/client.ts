@@ -116,16 +116,16 @@ export async function chat(messages: Message[]): Promise<string> {
       console.log(`📤 Sending to Gemini: ${cfg.gemini.model} (attempt ${attempt}/${maxAttempts})`);
       
       const res = await fetch(url, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
         body: JSON.stringify(requestBody),
-        timeout: cfg.timeouts.responseMs,
+      timeout: cfg.timeouts.responseMs,
       } as any);
 
-      if (!res.ok) {
-        const errorText = await res.text();
+    if (!res.ok) {
+      const errorText = await res.text();
         const error = new Error(`Gemini API HTTP ${res.status}: ${errorText}`);
         
         // Don't retry on 4xx errors (client errors)
@@ -138,14 +138,14 @@ export async function chat(messages: Message[]): Promise<string> {
         lastError = error;
         console.warn(`⚠️  Gemini API Server Error: ${res.status} - will retry`);
         continue;
-      }
+    }
 
-      const data: any = await res.json();
+    const data: any = await res.json();
       
       // Parse Gemini response
       const content = data.candidates?.[0]?.content?.parts?.[0]?.text;
 
-      if (!content) {
+    if (!content) {
         // Check for blocking reasons
         if (data.candidates?.[0]?.finishReason === "SAFETY") {
           throw new Error("Response blocked by safety filters");
@@ -163,9 +163,9 @@ export async function chat(messages: Message[]): Promise<string> {
       }
 
       console.log(`✅ Gemini response received (attempt ${attempt})`);
-      return content;
+    return content;
       
-    } catch (error: any) {
+  } catch (error: any) {
       lastError = error;
       
       // Don't retry on timeout if it's the last attempt
@@ -190,8 +190,8 @@ export async function chat(messages: Message[]): Promise<string> {
       
       // Last attempt failed
       console.error("❌ LLM Client Error (all attempts failed):", error.message);
-      throw error;
-    }
+    throw error;
+  }
   }
   
   // All retries exhausted
