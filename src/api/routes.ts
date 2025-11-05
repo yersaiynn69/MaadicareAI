@@ -118,15 +118,10 @@ api.post("/ai/message", async (req: Request, res: Response) => {
       // Add assistant response to history
       session.messages.push({ role: "assistant", content: reply });
 
-      // Add disclaimer
-      const disclaimer =
-        session.lang === "kk"
-          ? "Маңызды: бұл тек алдын ала ақпарат, медициналық диагноз емес. Жағдайыңыз нашарласа, міндетті түрде дәрігерге көрініңіз."
-          : "Важно: это ориентировочная информация и не является медицинским диагнозом. При ухудшении состояния обратитесь к врачу.";
-
       console.log(`✅ Message processed for session ${sessionId}`);
 
-      return res.json({ reply: `${reply}\n\n${disclaimer}` });
+      // Return reply as-is (AI already adds disclaimer if needed)
+      return res.json({ reply: reply });
     }
 
     return res.status(400).json({ error: "type must be 'init' or 'message'" });
