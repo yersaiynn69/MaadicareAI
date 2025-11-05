@@ -13,7 +13,7 @@ export const api = Router();
  */
 api.post("/ai/message", async (req: Request, res: Response) => {
   try {
-    const { sessionId, type, fio, lang, message, imageUrl } = req.body || {};
+    const { sessionId, type, fio, lang, message, imageUrl, imageBase64, imageMimeType } = req.body || {};
 
     // Validate sessionId
     if (!sessionId) {
@@ -57,6 +57,8 @@ api.post("/ai/message", async (req: Request, res: Response) => {
         return res.status(404).json({ error: "Session not found. Please initialize first." });
       }
 
+      const { imageBase64, imageMimeType } = req.body || {};
+
       // Build user message content
       const contentParts: any[] = [];
 
@@ -64,7 +66,17 @@ api.post("/ai/message", async (req: Request, res: Response) => {
         contentParts.push({ type: "text", text: message });
       }
 
-      if (imageUrl) {
+      // Handle base64 image (preferred method)
+      if (imageBase64 && imageMimeType) {
+        contentParts.push({
+          type: "image_url",
+          image_url: {
+            url: `data:${imageMimeType};base64,${imageBase64}`,
+          },
+        });
+        console.log(`📷 Image received: ${imageMimeType}, size: ${imageBase64.length} chars`);
+      } else if (imageUrl) {
+        // Fallback to URL (deprecated)
         contentParts.push({
           type: "text",
           text: `Изображение доступно по URL: ${imageUrl}. Опиши видимые признаки объективно, не ставя точного диагноза.`,
@@ -72,7 +84,7 @@ api.post("/ai/message", async (req: Request, res: Response) => {
       }
 
       if (contentParts.length === 0) {
-        return res.status(400).json({ error: "message or imageUrl is required" });
+        return res.status(400).json({ error: "message or image is required" });
       }
 
       // Add user message to history

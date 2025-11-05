@@ -16,7 +16,7 @@ function convertMessagesToGemini(messages: Message[]): any[] {
     }
     
     const role = msg.role === "assistant" ? "model" : "user";
-    const parts = [];
+    const parts: any[] = [];
     
     if (typeof msg.content === "string") {
       parts.push({ text: msg.content });
@@ -25,6 +25,31 @@ function convertMessagesToGemini(messages: Message[]): any[] {
       for (const part of msg.content) {
         if (part.type === "text") {
           parts.push({ text: part.text });
+        } else if (part.type === "image_url" && part.image_url) {
+          // Handle image URL (base64 or regular URL)
+          const imageUrl = part.image_url.url;
+          
+          if (imageUrl.startsWith("data:")) {
+            // Base64 image: data:image/jpeg;base64,/9j/4AAQ...
+            const [mimeType, base64Data] = imageUrl.split(";base64,");
+            const imageMime = mimeType.replace("data:", "");
+            
+            if (base64Data) {
+              parts.push({
+                inline_data: {
+                  mime_type: imageMime,
+                  data: base64Data,
+                },
+              });
+              console.log(`📷 Converting base64 image to Gemini format: ${imageMime}`);
+            }
+          } else {
+            // Regular URL (Gemini doesn't support URLs directly, but we can try)
+            // For now, we'll convert it to text description
+            parts.push({
+              text: `Изображение доступно по URL: ${imageUrl}. Опиши видимые признаки объективно, не ставя точного диагноза.`,
+            });
+          }
         }
       }
     }
